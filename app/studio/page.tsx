@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { createDefaultStudioInput, validatePrimaryMode } from "@/lib/projectGenerator";
 import {
+  ApexProject,
   AssistConfig,
   BrandSettings,
   IndustryId,
@@ -27,6 +28,7 @@ import {
   Phase,
   StudioInput,
 } from "@/lib/projectSchema";
+import { saveProjectClient } from "@/lib/clientStorage";
 
 function sleep(ms: number) {
   return new Promise((resolve) => {
@@ -171,7 +173,9 @@ export default function StudioPage() {
         body: JSON.stringify(draft),
       });
       if (!response.ok) throw new Error("Failed to generate project package");
-      const payload = (await response.json()) as { projectId: string };
+      const payload = (await response.json()) as { projectId: string; project: ApexProject };
+      // Persist to localStorage so the output page works across Vercel invocations
+      if (payload.project) saveProjectClient(payload.project);
       router.push(`/output/${payload.projectId}`);
     } catch {
       setGenerating(false);

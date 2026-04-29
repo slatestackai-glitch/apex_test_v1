@@ -12,13 +12,19 @@ interface ProjectFile {
   projects: ApexProject[];
 }
 
-async function ensureDataFile() {
-  await mkdir(dataDir, { recursive: true });
+// Module-level in-memory fallback for read-only environments (e.g. Vercel serverless)
+const memoryStore = new Map<string, ApexProject>();
 
+async function ensureDataFile() {
   try {
-    await readFile(dataFile, "utf8");
+    await mkdir(dataDir, { recursive: true });
+    try {
+      await readFile(dataFile, "utf8");
+    } catch {
+      await writeFile(dataFile, JSON.stringify({ projects: [] }, null, 2), "utf8");
+    }
   } catch {
-    await writeFile(dataFile, JSON.stringify({ projects: [] }, null, 2), "utf8");
+    // Read-only filesystem (Vercel) — silently fall through to memory store
   }
 }
 
@@ -33,17 +39,24 @@ async function readProjectFile(): Promise<ProjectFile> {
       throw new Error("Malformed project file");
     }
 
-    return parsed;
+    // Merge with in-memory store (in-memory wins for current session)
+    const fileMap = new Map(parsed.projects.map((p) => [p.id, p]));
+    memoryStore.forEach((p, id) => fileMap.set(id, p));
+    return { projects: Array.from(fileMap.values()) };
   } catch {
-    const recovered: ProjectFile = { projects: [] };
-    await writeFile(dataFile, JSON.stringify(recovered, null, 2), "utf8");
-    return recovered;
+    return { projects: Array.from(memoryStore.values()) };
   }
 }
 
 async function writeProjectFile(projects: ApexProject[]) {
-  await ensureDataFile();
-  await writeFile(dataFile, JSON.stringify({ projects }, null, 2), "utf8");
+  // Always update in-memory store so reads within the same invocation work
+  projects.forEach((p) => memoryStore.set(p.id, p));
+  try {
+    await ensureDataFile();
+    await writeFile(dataFile, JSON.stringify({ projects }, null, 2), "utf8");
+  } catch {
+    // Read-only filesystem — in-memory store already updated above
+  }
 }
 
 export async function listProjects(): Promise<ApexProject[]> {
