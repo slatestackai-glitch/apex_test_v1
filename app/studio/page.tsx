@@ -9,8 +9,8 @@ import { Header } from "@/components/shell/Header";
 import { AppShell } from "@/components/shell/AppShell";
 import { ClientVisionStep } from "@/components/studio/ClientVisionStep";
 import { JourneysStep } from "@/components/studio/JourneysStep";
+import { ControlsStep } from "@/components/studio/ControlsStep";
 import { ExperienceStep } from "@/components/studio/ExperienceStep";
-import { KnowledgeControlsStep } from "@/components/studio/KnowledgeControlsStep";
 import { GenerateStep } from "@/components/studio/GenerateStep";
 import { StickyActionFooter } from "@/components/studio/StickyActionFooter";
 import { studioSteps, StudioStepper } from "@/components/studio/StudioStepper";
@@ -186,21 +186,25 @@ export default function StudioPage() {
   function canContinueCurrentStep() {
     switch (currentStep) {
       case 0:
+        // Vision: client info + goal selected
         return Boolean(
           draft.clientName &&
           draft.websiteUrl &&
           draft.pageUrl &&
-          (draft.leadDefinition?.normalizedSignals?.length ?? 0) > 0
+          draft.mainGoal
         );
       case 1:
+        // Journey: at least one journey
         return draft.selectedJourneyIds.length > 0;
       case 2:
+        // Controls: always passable (KB + training are optional)
+        return true;
+      case 3:
+        // Experience: mode selected + brand names set
         return (
           draft.selectedModeIds.length > 0 &&
           Boolean(draft.brand.assistantName && draft.brand.clientName)
         );
-      case 3:
-        return true;
       case 4:
         return readyToGenerate;
       default:
@@ -230,6 +234,14 @@ export default function StudioPage() {
         );
       case 2:
         return (
+          <ControlsStep
+            value={draft}
+            onChange={patchDraft}
+            onPromptChange={onPromptChange}
+          />
+        );
+      case 3:
+        return (
           <ExperienceStep
             value={draft}
             onToggleMode={toggleMode}
@@ -238,14 +250,6 @@ export default function StudioPage() {
             onAssistConfig={onAssistConfig}
             onPageConfig={onPageConfig}
             onBrandChange={onBrandChange}
-          />
-        );
-      case 3:
-        return (
-          <KnowledgeControlsStep
-            value={draft}
-            onChange={patchDraft}
-            onPromptChange={onPromptChange}
           />
         );
       case 4:

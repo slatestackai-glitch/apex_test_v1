@@ -1,46 +1,121 @@
 "use client";
 
 import { useState } from "react";
-import { Check, Layers, Bot, Globe } from "lucide-react";
-
+import { Layers, Bot, Globe } from "lucide-react";
 import { AdvancedSettingsPanel } from "@/components/ui/AdvancedSettingsPanel";
 import { cn } from "@/lib/utils";
-import {
-  ModeId,
-  OverlayConfig,
-  AssistConfig,
-  PageConfig,
-  BrandSettings,
-  StudioInput,
-} from "@/lib/projectSchema";
+import { ModeId, OverlayConfig, AssistConfig, PageConfig, BrandSettings, StudioInput } from "@/lib/projectSchema";
 
-const MODE_CARDS: Array<{
+// ─── Visual mode previews ────────────────────────────────────────────────────
+
+function OverlayPreview() {
+  return (
+    <div className="rounded-lg overflow-hidden border border-gray-200 h-28 relative select-none">
+      {/* Fake website behind */}
+      <div className="h-6 bg-[#0A2540] flex items-center px-2 gap-1.5">
+        <div className="h-1.5 w-1.5 rounded-full bg-white/30" />
+        <div className="h-1 w-14 rounded bg-white/20" />
+        <div className="ml-auto h-4 w-10 rounded bg-white/10" />
+      </div>
+      <div className="bg-gray-50 p-2 space-y-1">
+        <div className="h-2 w-20 rounded bg-gray-200" />
+        <div className="h-1.5 w-14 rounded bg-gray-200" />
+        <div className="h-1.5 w-16 rounded bg-gray-200" />
+      </div>
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-[#0A2540]/40 backdrop-blur-[1px] flex items-center justify-center">
+        <div className="bg-white rounded-xl p-3 w-32 shadow-xl">
+          <div className="h-1.5 w-4 rounded bg-[#C8102E] mb-1" />
+          <div className="h-1.5 w-20 rounded bg-gray-200 mb-0.5" />
+          <div className="h-1.5 w-16 rounded bg-gray-200 mb-0.5" />
+          <div className="h-1.5 w-14 rounded bg-gray-200 mb-2" />
+          <div className="h-5 w-20 rounded-lg bg-[#C8102E] flex items-center justify-center gap-1">
+            <div className="h-0.5 w-8 rounded bg-white" />
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AssistPreview() {
+  return (
+    <div className="rounded-lg overflow-hidden border border-gray-200 h-28 flex select-none">
+      {/* Fake website content */}
+      <div className="flex-1 bg-white p-2 space-y-1.5">
+        <div className="h-5 rounded bg-[#0A2540] w-full" />
+        <div className="h-1.5 w-16 rounded bg-gray-200" />
+        <div className="h-1.5 w-12 rounded bg-gray-200" />
+        <div className="h-6 w-16 rounded-lg bg-gray-200 mt-1" />
+      </div>
+      {/* Assist panel */}
+      <div className="w-24 border-l border-gray-100 bg-[#F5F7FB] p-2 flex flex-col">
+        <div className="h-1 w-6 rounded bg-[#C8102E] mb-1" />
+        <div className="h-1 w-14 rounded bg-gray-200 mb-0.5" />
+        <div className="h-1 w-10 rounded bg-gray-200 mb-0.5" />
+        <div className="h-1 w-12 rounded bg-gray-200 mb-auto" />
+        <div className="h-4 w-full rounded-lg bg-[#C8102E]/20 flex items-center px-1.5">
+          <div className="h-0.5 w-6 rounded bg-[#C8102E]/50" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PagePreview() {
+  return (
+    <div className="rounded-lg overflow-hidden border border-gray-200 h-28 select-none">
+      {/* Dark hero */}
+      <div className="h-18 bg-[#0A2540] p-2.5">
+        <div className="h-5 w-full bg-[#0A2540]" />
+        <div className="h-2 w-16 rounded bg-white/60 mb-0.5" />
+        <div className="h-1.5 w-20 rounded bg-white/30 mb-1.5" />
+        <div className="h-5 rounded-lg bg-white/95 flex items-center px-2 gap-1">
+          <div className="h-2 w-2 rounded-full bg-[#C8102E] shrink-0" />
+          <div className="h-1 w-12 rounded bg-gray-300" />
+        </div>
+      </div>
+      {/* Below hero */}
+      <div className="bg-white p-2 flex gap-1.5">
+        {[1, 2, 3].map((i) => <div key={i} className="flex-1 h-4 rounded bg-gray-100" />)}
+      </div>
+    </div>
+  );
+}
+
+// ─── Mode cards ──────────────────────────────────────────────────────────────
+
+const MODE_DEFS: Array<{
   id: ModeId;
   label: string;
   description: string;
+  bestFor: string;
   Icon: React.ElementType;
-  color: string;
+  Preview: React.ComponentType;
 }> = [
   {
     id: "overlay",
     label: "APEX Overlay",
-    description: "Modal layer over the client site. Guided conversion journey with journey menu.",
+    description: "A guided modal appears above the existing site after a trigger.",
+    bestFor: "Insurance, banking — high-intent pages where a single journey needs focus.",
     Icon: Layers,
-    color: "var(--apex-red)",
+    Preview: OverlayPreview,
   },
   {
     id: "assist",
     label: "APEX Assist",
-    description: "Embedded assistant alongside the native site. Before/after comparison.",
+    description: "APEX embeds alongside the native page, improving the existing flow.",
+    bestFor: "Quote forms, renewal pages — where the native experience should be enhanced, not replaced.",
     Icon: Bot,
-    color: "var(--apex-blue)",
+    Preview: AssistPreview,
   },
   {
     id: "page",
     label: "APEX Page",
-    description: "Standalone AI-native landing page purpose-built for conversion.",
+    description: "A dedicated AI-first landing page with a conversational entry point.",
+    bestFor: "Campaign pages, product launches — where a full APEX-driven experience makes sense.",
     Icon: Globe,
-    color: "#7C3AED",
+    Preview: PagePreview,
   },
 ];
 
@@ -63,415 +138,247 @@ export function ExperienceStep({
   onPageConfig: (patch: Partial<PageConfig>) => void;
   onBrandChange: (patch: Partial<BrandSettings>) => void;
 }) {
-  const selectedModeIds = value.selectedModeIds ?? ["overlay"];
-  const [configTab, setConfigTab] = useState<ModeId>(selectedModeIds[0] ?? "overlay");
-  const overlayConfig = value.overlayConfig;
-  const assistConfig = value.assistConfig;
-  const pageConfig = value.pageConfig;
-  const brand = value.brand;
+  const selectedModes = value.selectedModeIds ?? [];
+  const primaryMode = value.selectedPrimaryMode;
 
   return (
-    <div className="max-w-2xl mx-auto flex flex-col gap-8">
-      {/* Mode selector */}
-      <section>
-        <h2 className="text-lg font-semibold text-[var(--apex-text-primary)] mb-1">Select APEX modes</h2>
-        <p className="text-sm text-[var(--apex-text-secondary)] mb-4">
-          Choose how APEX will be deployed. Select multiple to demo all modes.
-        </p>
+    <div className="max-w-2xl mx-auto space-y-6">
+      <div>
+        <p className="text-xs font-semibold uppercase tracking-widest text-[#C8102E] mb-1">Step 4 — Experience</p>
+        <h2 className="text-2xl font-bold text-[#0A2540]">Choose the APEX mode</h2>
+        <p className="text-sm text-gray-400 mt-1">Select how APEX appears to the end user. One mode is primary.</p>
+      </div>
 
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-          {MODE_CARDS.map((card) => {
-            const isSelected = selectedModeIds.includes(card.id);
-            const isPrimary = value.selectedPrimaryMode === card.id;
-
-            return (
-              <div
-                key={card.id}
-                className={cn(
-                  "relative rounded-2xl border-2 p-4 transition-all",
-                  isSelected
-                    ? "border-[var(--apex-red)] bg-[#fff4f6]"
-                    : "border-[var(--apex-border)] bg-[var(--apex-surface)]"
-                )}
-              >
-                <div
-                  className="mb-3 h-14 rounded-xl border flex items-center justify-center"
-                  style={{ backgroundColor: isSelected ? `${card.color}10` : "var(--apex-section-bg)" }}
-                >
-                  <card.Icon
-                    className="h-6 w-6"
-                    style={{ color: isSelected ? card.color : "#94a3b8" }}
-                  />
-                </div>
-
-                <p className="text-sm font-semibold text-[var(--apex-text-primary)] mb-1">{card.label}</p>
-                <p className="text-[11px] text-[var(--apex-text-secondary)] leading-relaxed mb-3">
-                  {card.description}
-                </p>
-
-                <div className="flex gap-2">
-                  <button
-                    type="button"
-                    onClick={() => onToggleMode(card.id)}
-                    className={cn(
-                      "flex-1 rounded-xl py-1.5 text-xs font-semibold transition-colors",
-                      isSelected
-                        ? "bg-[var(--apex-red)] text-white"
-                        : "border border-[var(--apex-border)] bg-[var(--apex-surface)] text-[var(--apex-text-secondary)] hover:bg-[var(--apex-section-bg)]"
-                    )}
-                  >
-                    {isSelected ? "Selected" : "Select"}
-                  </button>
-                  {isSelected && !isPrimary && (
-                    <button
-                      type="button"
-                      onClick={() => onPrimaryMode(card.id)}
-                      className="rounded-xl border border-[var(--apex-border)] bg-[var(--apex-surface)] px-2 py-1.5 text-[10px] font-semibold text-[var(--apex-text-secondary)] hover:bg-[var(--apex-section-bg)]"
-                    >
-                      Set primary
-                    </button>
-                  )}
-                  {isPrimary && isSelected && (
-                    <span className="flex items-center gap-1 rounded-xl border border-[var(--apex-success)]/30 bg-[#f2fbf7] px-2 py-1.5 text-[10px] font-semibold text-[var(--apex-success)]">
-                      <Check className="h-3 w-3" />
-                      Primary
-                    </span>
-                  )}
-                </div>
+      {/* Mode cards with visual previews */}
+      <div className="space-y-4">
+        {MODE_DEFS.map(({ id, label, description, bestFor, Icon, Preview }) => {
+          const isSelected = selectedModes.includes(id);
+          const isPrimary = primaryMode === id;
+          return (
+            <div key={id}
+              className={cn("rounded-2xl border-2 bg-white overflow-hidden transition-all",
+                isPrimary ? "border-[#C8102E]" : isSelected ? "border-gray-300" : "border-gray-100 hover:border-gray-200")}>
+              {/* Visual preview */}
+              <div className="px-5 pt-5 pb-3">
+                <Preview />
               </div>
-            );
-          })}
-        </div>
-      </section>
 
-      {/* Brand essentials */}
-      <section>
-        <h2 className="text-lg font-semibold text-[var(--apex-text-primary)] mb-1">Brand & tone</h2>
-        <p className="text-sm text-[var(--apex-text-secondary)] mb-4">
-          How APEX looks and sounds for this client.
-        </p>
+              {/* Card body */}
+              <div className="px-5 pb-5">
+                <div className="flex items-start justify-between gap-3 mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className={cn("flex h-8 w-8 items-center justify-center rounded-xl",
+                      isPrimary ? "bg-[#C8102E]/10" : "bg-gray-100")}>
+                      <Icon className={cn("h-4 w-4", isPrimary ? "text-[#C8102E]" : "text-gray-500")} />
+                    </div>
+                    <div>
+                      <p className={cn("text-sm font-bold", isPrimary ? "text-[#C8102E]" : "text-[#0A2540]")}>{label}</p>
+                      {isPrimary && <span className="text-[10px] font-semibold text-[#C8102E] uppercase tracking-wider">Primary mode</span>}
+                    </div>
+                  </div>
+                  <button type="button" onClick={() => { onToggleMode(id); onPrimaryMode(id); }}
+                    className={cn("h-8 rounded-xl px-3 text-xs font-semibold transition-all shrink-0",
+                      isPrimary ? "bg-[#C8102E] text-white"
+                        : "border border-gray-200 text-gray-500 hover:border-[#C8102E] hover:text-[#C8102E]")}>
+                    {isPrimary ? "Selected" : "Select"}
+                  </button>
+                </div>
+                <p className="text-sm text-gray-500 mb-1">{description}</p>
+                <p className="text-[11px] text-gray-400 italic">Best for: {bestFor}</p>
+              </div>
 
+              {/* Mode-specific config (shown for primary) */}
+              {isPrimary && (
+                <div className="border-t border-gray-100 bg-[#F5F7FB] px-5 py-4 space-y-3 animate-[slideUp_0.2s_ease]">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{label} settings</p>
+
+                  {id === "overlay" && (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1.5">Trigger timing</label>
+                        <select value={value.overlayConfig?.triggerBehavior ?? "auto-5s"}
+                          onChange={(e) => onOverlayConfig({ triggerBehavior: e.target.value as OverlayConfig["triggerBehavior"] })}
+                          className="w-full h-9 rounded-xl border border-gray-200 px-3 text-xs bg-white focus:outline-none focus:border-[#C8102E]">
+                          <option value="auto-3s">After 3 seconds</option>
+                          <option value="auto-5s">After 5 seconds</option>
+                          <option value="cta-click">On CTA click</option>
+                          <option value="scroll-depth">On scroll depth</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1.5">Overlay size</label>
+                        <select value={value.overlayConfig?.size ?? "80"}
+                          onChange={(e) => onOverlayConfig({ size: e.target.value as OverlayConfig["size"] })}
+                          className="w-full h-9 rounded-xl border border-gray-200 px-3 text-xs bg-white focus:outline-none focus:border-[#C8102E]">
+                          <option value="70">70% width</option>
+                          <option value="80">80% width</option>
+                          <option value="full">Full screen</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1.5">Background blur</label>
+                        <select value={value.overlayConfig?.blur ?? "medium"}
+                          onChange={(e) => onOverlayConfig({ blur: e.target.value as OverlayConfig["blur"] })}
+                          className="w-full h-9 rounded-xl border border-gray-200 px-3 text-xs bg-white focus:outline-none focus:border-[#C8102E]">
+                          <option value="none">None</option>
+                          <option value="light">Light</option>
+                          <option value="medium">Medium</option>
+                          <option value="strong">Strong</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1.5">Entry animation</label>
+                        <select value={value.overlayConfig?.animation ?? "fade-scale"}
+                          onChange={(e) => onOverlayConfig({ animation: e.target.value as OverlayConfig["animation"] })}
+                          className="w-full h-9 rounded-xl border border-gray-200 px-3 text-xs bg-white focus:outline-none focus:border-[#C8102E]">
+                          <option value="fade">Fade</option>
+                          <option value="fade-scale">Fade + scale</option>
+                          <option value="slide-up">Slide up</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {id === "assist" && (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1.5">Default state</label>
+                        <select value={value.assistConfig?.defaultState ?? "apex-first"}
+                          onChange={(e) => onAssistConfig({ defaultState: e.target.value as AssistConfig["defaultState"] })}
+                          className="w-full h-9 rounded-xl border border-gray-200 px-3 text-xs bg-white focus:outline-none focus:border-[#C8102E]">
+                          <option value="native-first">Native first</option>
+                          <option value="apex-first">APEX first</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1.5">Assist behavior</label>
+                        <select value={value.assistConfig?.assistBehavior ?? "toggle"}
+                          onChange={(e) => onAssistConfig({ assistBehavior: e.target.value as AssistConfig["assistBehavior"] })}
+                          className="w-full h-9 rounded-xl border border-gray-200 px-3 text-xs bg-white focus:outline-none focus:border-[#C8102E]">
+                          <option value="toggle">Toggle</option>
+                          <option value="replace">Replace</option>
+                          <option value="inline">Inline</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+
+                  {id === "page" && (
+                    <div className="grid gap-3 sm:grid-cols-2">
+                      <div className="sm:col-span-2">
+                        <label className="block text-xs font-medium text-gray-500 mb-1.5">Hero headline</label>
+                        <input type="text" value={value.pageConfig?.heroHeadline ?? ""}
+                          onChange={(e) => onPageConfig({ heroHeadline: e.target.value })}
+                          placeholder="e.g. Insurance that moves with you."
+                          className="w-full h-9 rounded-xl border border-gray-200 px-3 text-xs text-[#0A2540] focus:outline-none focus:border-[#C8102E]" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1.5">AI input placeholder</label>
+                        <input type="text" value={value.pageConfig?.primaryCtaLabel ?? ""}
+                          onChange={(e) => onPageConfig({ primaryCtaLabel: e.target.value })}
+                          placeholder="e.g. Ask anything about insurance…"
+                          className="w-full h-9 rounded-xl border border-gray-200 px-3 text-xs text-[#0A2540] focus:outline-none focus:border-[#C8102E]" />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-medium text-gray-500 mb-1.5">Module position</label>
+                        <select value={value.pageConfig?.guidedModulePosition ?? "hero"}
+                          onChange={(e) => onPageConfig({ guidedModulePosition: e.target.value as PageConfig["guidedModulePosition"] })}
+                          className="w-full h-9 rounded-xl border border-gray-200 px-3 text-xs bg-white focus:outline-none focus:border-[#C8102E]">
+                          <option value="hero">Hero</option>
+                          <option value="mid-page">Mid page</option>
+                          <option value="sticky">Sticky</option>
+                        </select>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* Brand & tone */}
+      <div className="rounded-2xl border border-gray-100 bg-white p-6 space-y-4">
+        <p className="text-sm font-semibold text-[#0A2540]">Client branding</p>
         <div className="grid gap-4 sm:grid-cols-2">
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Assistant name</span>
-            <input
-              value={brand.assistantName}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Assistant name</label>
+            <input type="text" value={value.brand?.assistantName ?? ""}
               onChange={(e) => onBrandChange({ assistantName: e.target.value })}
-              className="h-10 w-full rounded-xl border border-[var(--apex-border)] bg-[var(--apex-surface)] px-3 text-sm outline-none focus:border-[var(--apex-red)] focus:ring-2 focus:ring-[var(--apex-red)]/15 transition"
-            />
-          </label>
-
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Tone</span>
-            <div className="flex flex-wrap gap-2">
-              {TONE_OPTIONS.map((tone) => (
-                <button
-                  key={tone}
-                  type="button"
-                  onClick={() => onBrandChange({ tone })}
-                  className={cn(
-                    "rounded-xl px-3 py-2 text-xs font-semibold border transition-colors",
-                    brand.tone === tone
-                      ? "border-[var(--apex-red)] bg-[#fff4f6] text-[var(--apex-red)]"
-                      : "border-[var(--apex-border)] bg-[var(--apex-surface)] text-[var(--apex-text-secondary)] hover:bg-[var(--apex-section-bg)]"
-                  )}
-                >
-                  {tone}
-                </button>
-              ))}
-            </div>
-          </label>
-
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Primary color</span>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={brand.primaryColor}
-                onChange={(e) => onBrandChange({ primaryColor: e.target.value })}
-                className="h-10 w-14 rounded-xl border border-[var(--apex-border)] bg-[var(--apex-surface)] p-1 cursor-pointer"
-              />
-              <input
-                value={brand.primaryColor}
-                onChange={(e) => onBrandChange({ primaryColor: e.target.value })}
-                className="h-10 flex-1 rounded-xl border border-[var(--apex-border)] bg-[var(--apex-surface)] px-3 text-sm font-mono outline-none focus:border-[var(--apex-red)] focus:ring-2 focus:ring-[var(--apex-red)]/15 transition"
-              />
-            </div>
-          </label>
-
-          <label className="flex flex-col gap-1.5">
-            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Secondary color</span>
-            <div className="flex items-center gap-2">
-              <input
-                type="color"
-                value={brand.secondaryColor}
-                onChange={(e) => onBrandChange({ secondaryColor: e.target.value })}
-                className="h-10 w-14 rounded-xl border border-[var(--apex-border)] bg-[var(--apex-surface)] p-1 cursor-pointer"
-              />
-              <input
-                value={brand.secondaryColor}
-                onChange={(e) => onBrandChange({ secondaryColor: e.target.value })}
-                className="h-10 flex-1 rounded-xl border border-[var(--apex-border)] bg-[var(--apex-surface)] px-3 text-sm font-mono outline-none focus:border-[var(--apex-red)] focus:ring-2 focus:ring-[var(--apex-red)]/15 transition"
-              />
-            </div>
-          </label>
-
-          <label className="flex flex-col gap-1.5 sm:col-span-2">
-            <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Welcome message</span>
-            <textarea
-              value={brand.welcomeMessage}
-              onChange={(e) => onBrandChange({ welcomeMessage: e.target.value })}
-              rows={2}
-              className="w-full rounded-xl border border-[var(--apex-border)] bg-[var(--apex-surface)] px-3 py-2.5 text-sm resize-none outline-none focus:border-[var(--apex-red)] focus:ring-2 focus:ring-[var(--apex-red)]/15 transition"
-            />
-          </label>
+              placeholder="e.g. Ava"
+              className="w-full h-10 rounded-xl border border-gray-200 px-3 text-sm text-[#0A2540] focus:outline-none focus:border-[#C8102E] focus:ring-2 focus:ring-[#C8102E]/10 transition-all" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Logo initials</label>
+            <input type="text" value={value.brand?.logoInitials ?? ""}
+              onChange={(e) => onBrandChange({ logoInitials: e.target.value })}
+              placeholder="e.g. NS"
+              className="w-full h-10 rounded-xl border border-gray-200 px-3 text-sm text-[#0A2540] focus:outline-none focus:border-[#C8102E] focus:ring-2 focus:ring-[#C8102E]/10 transition-all" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Tone</label>
+            <select value={value.brand?.tone ?? "Professional and clear"}
+              onChange={(e) => onBrandChange({ tone: e.target.value })}
+              className="w-full h-10 rounded-xl border border-gray-200 px-3 text-sm text-[#0A2540] bg-white focus:outline-none focus:border-[#C8102E] transition-all">
+              {TONE_OPTIONS.map((t) => <option key={t} value={`${t} and clear`}>{t}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">UI density</label>
+            <select value={value.brand?.uiDensity ?? "Balanced"}
+              onChange={(e) => onBrandChange({ uiDensity: e.target.value as BrandSettings["uiDensity"] })}
+              className="w-full h-10 rounded-xl border border-gray-200 px-3 text-sm text-[#0A2540] bg-white focus:outline-none focus:border-[#C8102E] transition-all">
+              <option value="Compact">Compact</option>
+              <option value="Balanced">Balanced</option>
+              <option value="Premium">Premium</option>
+            </select>
+          </div>
         </div>
-      </section>
+      </div>
 
-      {/* Advanced: mode configs + layout controls */}
-      <AdvancedSettingsPanel subtitle="Trigger timing, overlay size, animation, surface style, density, and mode-specific behavior.">
-        {selectedModeIds.length > 0 && (
-          <div className="flex flex-col gap-5">
-            {/* Mode config tabs */}
-            <div>
-              <p className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)] mb-3">Mode configuration</p>
-              <div className="flex gap-1 mb-4 rounded-xl border border-[var(--apex-border)] bg-[var(--apex-section-bg)] p-1">
-                {selectedModeIds.map((modeId) => (
-                  <button
-                    key={modeId}
-                    type="button"
-                    onClick={() => setConfigTab(modeId)}
-                    className={cn(
-                      "flex-1 rounded-lg py-2 text-xs font-semibold transition-colors",
-                      configTab === modeId
-                        ? "bg-[var(--apex-surface)] text-[var(--apex-text-primary)] shadow-sm"
-                        : "text-[var(--apex-text-secondary)] hover:text-[var(--apex-text-primary)]"
-                    )}
-                  >
-                    {modeId === "overlay" ? "Overlay" : modeId === "assist" ? "Assist" : "Page"}
-                  </button>
-                ))}
-              </div>
-
-              {configTab === "overlay" && overlayConfig && (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Trigger</span>
-                    <select
-                      value={overlayConfig.triggerBehavior}
-                      onChange={(e) => onOverlayConfig({ triggerBehavior: e.target.value as OverlayConfig["triggerBehavior"] })}
-                      className="h-10 w-full rounded-xl border border-[var(--apex-border)] bg-[var(--apex-surface)] px-3 text-sm outline-none focus:border-[var(--apex-red)]"
-                    >
-                      <option value="auto-3s">Auto — 3 seconds</option>
-                      <option value="auto-5s">Auto — 5 seconds</option>
-                      <option value="cta-click">On CTA click</option>
-                      <option value="scroll-depth">On scroll depth</option>
-                    </select>
-                  </label>
-
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Size</span>
-                    <div className="flex gap-2">
-                      {(["70", "80", "full"] as const).map((size) => (
-                        <button
-                          key={size}
-                          type="button"
-                          onClick={() => onOverlayConfig({ size })}
-                          className={cn(
-                            "flex-1 rounded-xl py-2 text-xs font-semibold border transition-colors",
-                            overlayConfig.size === size
-                              ? "border-[var(--apex-red)] bg-[#fff4f6] text-[var(--apex-red)]"
-                              : "border-[var(--apex-border)] bg-[var(--apex-surface)] text-[var(--apex-text-secondary)]"
-                          )}
-                        >
-                          {size === "full" ? "Full" : `${size}%`}
-                        </button>
-                      ))}
-                    </div>
-                  </label>
-
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Blur</span>
-                    <div className="flex gap-1">
-                      {(["none", "light", "medium", "strong"] as const).map((blur) => (
-                        <button
-                          key={blur}
-                          type="button"
-                          onClick={() => onOverlayConfig({ blur })}
-                          className={cn(
-                            "flex-1 rounded-lg py-2 text-xs font-medium border transition-colors capitalize",
-                            overlayConfig.blur === blur
-                              ? "border-[var(--apex-red)] bg-[#fff4f6] text-[var(--apex-red)]"
-                              : "border-[var(--apex-border)] bg-[var(--apex-surface)] text-[var(--apex-text-secondary)]"
-                          )}
-                        >
-                          {blur}
-                        </button>
-                      ))}
-                    </div>
-                  </label>
-
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Animation</span>
-                    <div className="flex gap-2">
-                      {(["fade", "fade-scale", "slide-up"] as const).map((anim) => (
-                        <button
-                          key={anim}
-                          type="button"
-                          onClick={() => onOverlayConfig({ animation: anim })}
-                          className={cn(
-                            "flex-1 rounded-xl py-2 text-xs font-medium border transition-colors",
-                            overlayConfig.animation === anim
-                              ? "border-[var(--apex-red)] bg-[#fff4f6] text-[var(--apex-red)]"
-                              : "border-[var(--apex-border)] bg-[var(--apex-surface)] text-[var(--apex-text-secondary)]"
-                          )}
-                        >
-                          {anim}
-                        </button>
-                      ))}
-                    </div>
-                  </label>
-
-                  <label className="flex flex-col gap-1.5 sm:col-span-2">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Close behavior</span>
-                    <div className="flex gap-2">
-                      {(["allow-close", "minimize-pill", "reopen-cta"] as const).map((cb) => (
-                        <button
-                          key={cb}
-                          type="button"
-                          onClick={() => onOverlayConfig({ closeBehavior: cb })}
-                          className={cn(
-                            "flex-1 rounded-xl py-2 text-xs font-medium border transition-colors",
-                            overlayConfig.closeBehavior === cb
-                              ? "border-[var(--apex-red)] bg-[#fff4f6] text-[var(--apex-red)]"
-                              : "border-[var(--apex-border)] bg-[var(--apex-surface)] text-[var(--apex-text-secondary)]"
-                          )}
-                        >
-                          {cb === "allow-close" ? "Allow close" : cb === "minimize-pill" ? "Minimize to pill" : "Reopen on CTA"}
-                        </button>
-                      ))}
-                    </div>
-                  </label>
-                </div>
-              )}
-
-              {configTab === "assist" && assistConfig && (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Native journey type</span>
-                    <select
-                      value={assistConfig.nativeJourneyType}
-                      onChange={(e) => onAssistConfig({ nativeJourneyType: e.target.value as AssistConfig["nativeJourneyType"] })}
-                      className="h-10 w-full rounded-xl border border-[var(--apex-border)] bg-[var(--apex-surface)] px-3 text-sm outline-none focus:border-[var(--apex-red)]"
-                    >
-                      <option value="quote-form">Quote form</option>
-                      <option value="renewal-form">Renewal form</option>
-                      <option value="claim-tracker">Claim tracker</option>
-                    </select>
-                  </label>
-
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Default state</span>
-                    <div className="flex gap-2">
-                      {(["native-first", "apex-first"] as const).map((state) => (
-                        <button
-                          key={state}
-                          type="button"
-                          onClick={() => onAssistConfig({ defaultState: state })}
-                          className={cn(
-                            "flex-1 rounded-xl py-2.5 text-xs font-semibold border transition-colors",
-                            assistConfig.defaultState === state
-                              ? "border-[var(--apex-red)] bg-[#fff4f6] text-[var(--apex-red)]"
-                              : "border-[var(--apex-border)] bg-[var(--apex-surface)] text-[var(--apex-text-secondary)]"
-                          )}
-                        >
-                          {state === "native-first" ? "Native first" : "APEX first"}
-                        </button>
-                      ))}
-                    </div>
-                  </label>
-
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Show comparison</span>
-                    <div className="flex gap-2">
-                      {([true, false] as const).map((val) => (
-                        <button
-                          key={String(val)}
-                          type="button"
-                          onClick={() => onAssistConfig({ showComparison: val })}
-                          className={cn(
-                            "flex-1 rounded-xl py-2.5 text-xs font-semibold border transition-colors",
-                            assistConfig.showComparison === val
-                              ? "border-[var(--apex-red)] bg-[#fff4f6] text-[var(--apex-red)]"
-                              : "border-[var(--apex-border)] bg-[var(--apex-surface)] text-[var(--apex-text-secondary)]"
-                          )}
-                        >
-                          {val ? "Yes" : "No"}
-                        </button>
-                      ))}
-                    </div>
-                  </label>
-                </div>
-              )}
-
-              {configTab === "page" && pageConfig && (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Page type</span>
-                    <select
-                      value={pageConfig.pageType}
-                      onChange={(e) => onPageConfig({ pageType: e.target.value as PageConfig["pageType"] })}
-                      className="h-10 w-full rounded-xl border border-[var(--apex-border)] bg-[var(--apex-surface)] px-3 text-sm outline-none focus:border-[var(--apex-red)]"
-                    >
-                      <option value="campaign">Campaign</option>
-                      <option value="product">Product</option>
-                      <option value="quote-journey">Quote journey</option>
-                    </select>
-                  </label>
-
-                  <label className="flex flex-col gap-1.5">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Module position</span>
-                    <div className="flex gap-1">
-                      {(["hero", "mid-page", "sticky"] as const).map((pos) => (
-                        <button
-                          key={pos}
-                          type="button"
-                          onClick={() => onPageConfig({ guidedModulePosition: pos })}
-                          className={cn(
-                            "flex-1 rounded-lg py-2 text-xs font-medium border transition-colors",
-                            pageConfig.guidedModulePosition === pos
-                              ? "border-[var(--apex-red)] bg-[#fff4f6] text-[var(--apex-red)]"
-                              : "border-[var(--apex-border)] bg-[var(--apex-surface)] text-[var(--apex-text-secondary)]"
-                          )}
-                        >
-                          {pos}
-                        </button>
-                      ))}
-                    </div>
-                  </label>
-
-                  <label className="flex flex-col gap-1.5 sm:col-span-2">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Hero headline</span>
-                    <input
-                      value={pageConfig.heroHeadline}
-                      onChange={(e) => onPageConfig({ heroHeadline: e.target.value })}
-                      className="h-10 w-full rounded-xl border border-[var(--apex-border)] bg-[var(--apex-surface)] px-3 text-sm outline-none focus:border-[var(--apex-red)] focus:ring-2 focus:ring-[var(--apex-red)]/15 transition"
-                    />
-                  </label>
-
-                  <label className="flex flex-col gap-1.5 sm:col-span-2">
-                    <span className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)]">Primary CTA label</span>
-                    <input
-                      value={pageConfig.primaryCtaLabel}
-                      onChange={(e) => onPageConfig({ primaryCtaLabel: e.target.value })}
-                      className="h-10 w-full rounded-xl border border-[var(--apex-border)] bg-[var(--apex-surface)] px-3 text-sm outline-none focus:border-[var(--apex-red)] focus:ring-2 focus:ring-[var(--apex-red)]/15 transition"
-                    />
-                  </label>
-                </div>
-              )}
+      {/* Advanced */}
+      <AdvancedSettingsPanel>
+        <div className="grid gap-4 sm:grid-cols-2">
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Primary color</label>
+            <div className="flex items-center gap-2">
+              <input type="color" value={value.brand?.primaryColor ?? "#C8102E"}
+                onChange={(e) => onBrandChange({ primaryColor: e.target.value })}
+                className="h-9 w-12 rounded-lg border border-gray-200 cursor-pointer" />
+              <input type="text" value={value.brand?.primaryColor ?? "#C8102E"}
+                onChange={(e) => onBrandChange({ primaryColor: e.target.value })}
+                className="flex-1 h-9 rounded-xl border border-gray-200 px-3 text-sm text-[#0A2540] font-mono focus:outline-none focus:border-[#C8102E]" />
             </div>
           </div>
-        )}
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">CTA label</label>
+            <input type="text" value={value.brand?.welcomeMessage ?? ""}
+              onChange={(e) => onBrandChange({ welcomeMessage: e.target.value })}
+              placeholder="e.g. Get a quote"
+              className="w-full h-9 rounded-xl border border-gray-200 px-3 text-sm text-[#0A2540] focus:outline-none focus:border-[#C8102E]" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">Border radius</label>
+            <select value={value.brand?.borderRadius ?? "Soft"}
+              onChange={(e) => onBrandChange({ borderRadius: e.target.value as BrandSettings["borderRadius"] })}
+              className="w-full h-9 rounded-xl border border-gray-200 px-3 text-sm bg-white focus:outline-none focus:border-[#C8102E]">
+              <option value="Soft">Soft (rounded)</option>
+              <option value="Medium">Medium</option>
+              <option value="Sharp">Sharp</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-gray-500 mb-1.5">CTA style</label>
+            <select value={value.brand?.ctaStyle ?? "Solid"}
+              onChange={(e) => onBrandChange({ ctaStyle: e.target.value as BrandSettings["ctaStyle"] })}
+              className="w-full h-9 rounded-xl border border-gray-200 px-3 text-sm bg-white focus:outline-none focus:border-[#C8102E]">
+              <option value="Solid">Solid</option>
+              <option value="Outline">Outline</option>
+              <option value="Soft">Soft</option>
+            </select>
+          </div>
+        </div>
       </AdvancedSettingsPanel>
     </div>
   );

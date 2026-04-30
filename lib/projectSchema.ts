@@ -331,6 +331,13 @@ export interface ApexProject {
 }
 
 export interface StudioInput {
+  // New Vision fields
+  mainGoal?: MainGoal | string;
+  goalDefinition?: string;
+  derivedLeadText?: string;
+  // New Controls fields
+  knowledgeBaseConfig?: KnowledgeBaseConfig;
+  agentTrainingConfig?: AgentTrainingConfig;
   industry: IndustryId;
   clientName: string;
   websiteUrl: string;
@@ -431,6 +438,74 @@ export interface GeneratedSetupCard {
   title: string;
   confirmed: boolean;
   fields: Record<string, string>;
+}
+
+export const MAIN_GOALS = [
+  "Increase qualified leads",
+  "Improve quote completion",
+  "Increase policy renewals",
+  "Reduce form drop-off",
+  "Improve advisor callback capture",
+  "Improve self-service resolution",
+  "Improve WhatsApp continuation",
+  "Improve claim/status support",
+  "Custom goal",
+] as const;
+
+export type MainGoal = (typeof MAIN_GOALS)[number];
+
+export interface KnowledgeBaseConfig {
+  documents: Array<{ id: string; type: string; name: string; status: "pending" | "ready" }>;
+  urls: string[];
+  enterpriseSources: string[];
+  dataSystems: string[];
+  historicalConversations: string[];
+  manualNotes: string;
+}
+
+export interface AgentWorkflowRules {
+  startWithIntentDetection: boolean;
+  askOneAtATime: boolean;
+  confirmBeforePhone: boolean;
+  askConsentBeforeHandoff: boolean;
+  offerWhatsApp: boolean;
+  offerCallback: boolean;
+}
+
+export interface AgentIntentCategory {
+  id: string;
+  label: string;
+  enabled: boolean;
+  destination: string;
+}
+
+export interface AgentToolAction {
+  id: string;
+  label: string;
+  trigger: string;
+  requiredInput: string;
+  result: string;
+  enabled: boolean;
+}
+
+export interface AgentTrainingConfig {
+  instructions: string;
+  tone: "professional" | "warm" | "direct" | "premium";
+  answerLength: "short" | "balanced" | "detailed";
+  clarificationStyle: "one-at-a-time" | "options" | "mixed";
+  userInputStyle: "free-text" | "guided" | "mixed";
+  workflowRules: AgentWorkflowRules;
+  intentCategories: AgentIntentCategory[];
+  toolActions: AgentToolAction[];
+  guardrails: string[];
+  fallbackBehavior: {
+    unclearIntent: string;
+    missingInfo: string;
+    apiFailure: string;
+    humanHandoff: string;
+  };
+  testInput: string;
+  testResult: { intent: string; nextQuestion: string } | null;
 }
 
 export type Vertical = string;

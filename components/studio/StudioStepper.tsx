@@ -5,11 +5,11 @@ import { CheckCircle2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export const studioSteps = [
-  { label: "Client Vision", subtitle: "Industry, vertical, client details, and lead definition" },
-  { label: "Journeys", subtitle: "Select and configure qualification journeys" },
-  { label: "Experience", subtitle: "APEX UI mode, brand colors, tone, and assistant name" },
-  { label: "Controls", subtitle: "Behavior prompt, knowledge files, guardrails, and handoff" },
-  { label: "Generate", subtitle: "Review configuration and generate the full demo package" },
+  { label: "Vision", subtitle: "Client, goal, and lead definition" },
+  { label: "Journey", subtitle: "Select and configure user journeys" },
+  { label: "Controls", subtitle: "Knowledge base and agent training" },
+  { label: "Experience", subtitle: "APEX mode and client-facing design" },
+  { label: "Generate", subtitle: "Review and generate the demo package" },
 ];
 
 export function StudioStepper({
