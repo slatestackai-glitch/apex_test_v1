@@ -331,11 +331,17 @@ export interface ApexProject {
 }
 
 export interface StudioInput {
-  // New Vision fields
+  // Vision fields
   mainGoal?: MainGoal | string;
   goalDefinition?: string;
   derivedLeadText?: string;
-  // New Controls fields
+  // Vision advanced
+  trafficSource?: string;
+  region?: string;
+  campaignContext?: string;
+  handoffPreference?: string;
+  qualificationStrictness?: "Low" | "Medium" | "High";
+  // Controls fields
   knowledgeBaseConfig?: KnowledgeBaseConfig;
   agentTrainingConfig?: AgentTrainingConfig;
   industry: IndustryId;

@@ -10,8 +10,6 @@ import { cn } from "@/lib/utils";
 import { recommendJourneys, RecommendedJourney } from "@/lib/journeyRecommendations";
 import { StudioInput } from "@/lib/projectSchema";
 
-const PIPELINE_STAGES = ["Visitor", "Intent", "Product", "Contact", "Consent", "Qualified", "Handoff"];
-
 const COMPLEXITY_COLORS: Record<RecommendedJourney["complexity"], string> = {
   Low: "bg-green-100 text-green-700",
   Medium: "bg-yellow-100 text-yellow-700",
@@ -265,45 +263,67 @@ export function JourneysStep({
       </section>
 
       {/* Advanced settings */}
-      <AdvancedSettingsPanel subtitle="Qualification threshold, phone/consent timing, fallback behavior, and handoff trigger.">
-        <div className="grid gap-4 sm:grid-cols-2 text-sm">
+      <AdvancedSettingsPanel subtitle="Phone/consent timing, fallback behavior, handoff, and CTA overrides.">
+        <div className="grid gap-4 sm:grid-cols-2">
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)] mb-1">Qualification threshold</p>
-            <p className="text-[var(--apex-text-primary)]">Score ≥ 70 — all required fields captured</p>
+            <label className="block text-xs font-medium text-[var(--apex-text-secondary)] mb-1.5">Qualification condition</label>
+            <select className="w-full h-10 rounded-xl border border-[var(--apex-border)] px-3 text-sm text-[var(--apex-text-primary)] bg-[var(--apex-surface)] focus:outline-none focus:border-[var(--apex-red)] transition-all">
+              <option>All required fields + consent given</option>
+              <option>Intent confirmed + contact captured</option>
+              <option>Minimum: name + phone</option>
+              <option>Custom condition</option>
+            </select>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)] mb-1">Phone capture timing</p>
-            <p className="text-[var(--apex-text-primary)]">After product intent is confirmed</p>
+            <label className="block text-xs font-medium text-[var(--apex-text-secondary)] mb-1.5">When to ask for phone</label>
+            <select className="w-full h-10 rounded-xl border border-[var(--apex-border)] px-3 text-sm text-[var(--apex-text-primary)] bg-[var(--apex-surface)] focus:outline-none focus:border-[var(--apex-red)] transition-all">
+              <option>After product intent is confirmed</option>
+              <option>At start of conversation</option>
+              <option>Before handoff only</option>
+              <option>After 2 questions answered</option>
+            </select>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)] mb-1">Consent capture timing</p>
-            <p className="text-[var(--apex-text-primary)]">Before CRM push and WhatsApp handoff</p>
+            <label className="block text-xs font-medium text-[var(--apex-text-secondary)] mb-1.5">When to ask for consent</label>
+            <select className="w-full h-10 rounded-xl border border-[var(--apex-border)] px-3 text-sm text-[var(--apex-text-primary)] bg-[var(--apex-surface)] focus:outline-none focus:border-[var(--apex-red)] transition-all">
+              <option>Before CRM push and WhatsApp handoff</option>
+              <option>After phone number captured</option>
+              <option>At end of conversation</option>
+            </select>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)] mb-1">Human handoff trigger</p>
-            <p className="text-[var(--apex-text-primary)]">User requests agent or fails 3 questions</p>
+            <label className="block text-xs font-medium text-[var(--apex-text-secondary)] mb-1.5">Fallback behavior</label>
+            <select className="w-full h-10 rounded-xl border border-[var(--apex-border)] px-3 text-sm text-[var(--apex-text-primary)] bg-[var(--apex-surface)] focus:outline-none focus:border-[var(--apex-red)] transition-all">
+              <option>Ask clarifying question</option>
+              <option>Show journey menu</option>
+              <option>Offer advisor callback</option>
+            </select>
           </div>
-
-          {/* Compact pipeline */}
-          <div className="sm:col-span-2 pt-2 border-t border-[var(--apex-border)]">
-            <p className="text-xs font-semibold uppercase tracking-wide text-[var(--apex-text-secondary)] mb-3">Qualification pipeline</p>
-            <div className="flex items-center gap-1 overflow-x-auto pb-1">
-              {PIPELINE_STAGES.map((stage, i) => (
-                <div key={stage} className="flex items-center gap-1 shrink-0">
-                  <div className={cn(
-                    "rounded-full px-2.5 py-1 text-[11px] font-semibold whitespace-nowrap",
-                    i === PIPELINE_STAGES.length - 1
-                      ? "bg-[var(--apex-red)] text-white"
-                      : "bg-[var(--apex-section-bg)] text-[var(--apex-text-secondary)]"
-                  )}>
-                    {stage}
-                  </div>
-                  {i < PIPELINE_STAGES.length - 1 && (
-                    <ChevronRight className="h-3 w-3 text-[var(--apex-border)] shrink-0" />
-                  )}
-                </div>
-              ))}
-            </div>
+          <div>
+            <label className="block text-xs font-medium text-[var(--apex-text-secondary)] mb-1.5">Human handoff trigger</label>
+            <select className="w-full h-10 rounded-xl border border-[var(--apex-border)] px-3 text-sm text-[var(--apex-text-primary)] bg-[var(--apex-surface)] focus:outline-none focus:border-[var(--apex-red)] transition-all">
+              <option>User requests agent or fails 3 questions</option>
+              <option>On user request only</option>
+              <option>After 2 failed attempts</option>
+              <option>On escalation keyword detected</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-[var(--apex-text-secondary)] mb-1.5">Save and resume</label>
+            <select className="w-full h-10 rounded-xl border border-[var(--apex-border)] px-3 text-sm text-[var(--apex-text-primary)] bg-[var(--apex-surface)] focus:outline-none focus:border-[var(--apex-red)] transition-all">
+              <option>Enabled — offer resume on return</option>
+              <option>Disabled</option>
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-[var(--apex-text-secondary)] mb-1.5">Handoff destination</label>
+            <input type="text" placeholder="e.g. CRM lead, WhatsApp, callback queue"
+              className="w-full h-10 rounded-xl border border-[var(--apex-border)] px-3 text-sm text-[var(--apex-text-primary)] placeholder-[var(--apex-text-secondary)]/50 focus:outline-none focus:border-[var(--apex-red)] transition-all bg-[var(--apex-surface)]" />
+          </div>
+          <div>
+            <label className="block text-xs font-medium text-[var(--apex-text-secondary)] mb-1.5">CTA label override</label>
+            <input type="text" placeholder="e.g. Start my claim, Get my quote"
+              className="w-full h-10 rounded-xl border border-[var(--apex-border)] px-3 text-sm text-[var(--apex-text-primary)] placeholder-[var(--apex-text-secondary)]/50 focus:outline-none focus:border-[var(--apex-red)] transition-all bg-[var(--apex-surface)]" />
           </div>
         </div>
       </AdvancedSettingsPanel>
